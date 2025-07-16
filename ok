@@ -1,0 +1,119 @@
+import time
+import pandas as pd
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+import snscrape.modules.twitter as sntwitter
+import praw
+from googlesearch import search
+import requests
+from bs4 import BeautifulSoup
+
+# Initialize the SentimentIntensityAnalyzer
+sia = SentimentIntensityAnalyzer()
+
+# Initialize Reddit API
+reddit = praw.Reddit(client_id='your_client_id',
+                     client_secret='your_client_secret',
+                     user_agent='your_user_agent')
+
+# Function to analyze sentiment
+def get_sentiment(text):
+    sentiment = sia.polarity_scores(text)
+    return sentiment['compound']
+
+# Function to classify sentiment
+def classify_sentiment(score):
+    if score > 0:
+        return 'Positive'
+    elif score < 0:
+        return 'Negative'
+    else:
+        return 'Neutral'
+
+# Scraping function for Twitter (using snscrape)
+def scrape_twitter_data(query="Tesla stock", limit=50):
+    tweets = []
+    for tweet in sntwitter.TwitterSearchScraper(query).get_items():
+        if len(tweets) >= limit:
+            break
+        tweets.append({
+            "text": tweet.content,
+            "author": tweet.user.username,
+            "url": f"https://twitter.com/{tweet.user.username}/status/{tweet.id}",
+            "source": "Twitter",
+            "date": tweet.date.strftime("%Y-%m-%d")
+        })
+    return tweets
+
+# Scraping function for Reddit (using praw)
+def scrape_reddit_data(subreddit="wallstreetbets", limit=50):
+    posts = []
+    subreddit = reddit.subreddit(subreddit)
+    for post in subreddit.hot(limit=limit):
+        posts.append({
+            "text": post.title,
+            "author": post.author.name if post.author else "N/A",
+            "url": f"https://reddit.com{post.permalink}",
+            "source": "Reddit",
+            "date": post.created_utc
+        })
+    return posts
+
+# Scraping function for news using Google search and BeautifulSoup
+def scrape_news_data(query="Tesla stock news", limit=50):
+    posts = []
+    # Perform Google search
+    for url in search(query, num_results=limit):
+        try:
+            # Get the page content
+            response = requests.get(url)
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            # Extract title and content
+            title = soup.title.string if soup.title else "No title"
+            body = soup.get_text()
+
+            posts.append({
+                "text": title + " " + body[:200],  # Taking the first 200 characters for preview
+                "author": "N/A",  # Author might not be available in the meta data
+                "url": url,
+                "source": "News",
+                "date": "2025-06-26"  # Static date (you can change this logic based on article date if available)
+            })
+        except Exception as e:
+            print(f"Error scraping {url}: {e}")
+            continue
+    return posts
+
+# Function to continuously scrape and save to CSV
+def continuous_scrape():
+    while True:
+        # Scrape data from Twitter, Reddit, and News
+        twitter_data = scrape_twitter_data(query="Tesla stock", limit=50)
+        reddit_data = scrape_reddit_data(subreddit="wallstreetbets", limit=50)
+        news_data = scrape_news_data(query="Tesla stock news", limit=50)
+
+        # Combine all data into one list
+        all_data = twitter_data + reddit_data + news_data
+
+        # Process sentiment analysis
+        for item in all_data:
+            sentiment_score = get_sentiment(item['text'])
+            sentiment_label = classify_sentiment(sentiment_score)
+
+            # Add sentiment data to the item
+            item['sentiment'] = sentiment_score
+            item['sentiment_label'] = sentiment_label
+
+        # Convert to DataFrame
+        df = pd.DataFrame(all_data)
+
+        # Append to the CSV file (if file exists, otherwise create it)
+        df.to_csv('continuous_scraper_output.csv', mode='a', header=False, index=False)
+
+        print(f"Scraped and saved {len(all_data)} records.")
+
+        # Wait for a defined interval before scraping again (e.g., 10 minutes)
+        time.sleep(600)  # Sleep for 10 minutes (600 seconds)
+
+# Run the scraper
+continuous_scrape()

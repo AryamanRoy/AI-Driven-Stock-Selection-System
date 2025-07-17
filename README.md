@@ -1,4 +1,5 @@
 # AI-Driven Stock Selection System
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 A sophisticated stock recommendation system that leverages artificial intelligence to analyze Reddit posts and news articles, performing sentiment analysis to provide data-driven investment insights.
 
@@ -203,19 +204,5 @@ If you encounter any issues or have questions:
 - [ ] Portfolio optimization features
 - [ ] Integration with trading platforms
 - [ ] Multi-language sentiment analysis
-
-## 📊 Recent Updates
-
-### v2.1.0 (Latest)
-- Improved sentiment analysis accuracy by 15%
-- Added support for cryptocurrency analysis
-- Enhanced risk assessment algorithms
-- Bug fixes and performance optimizations
-
-### v2.0.0
-- Complete rewrite with modular architecture
-- Added machine learning-based recommendations
-- Improved data processing pipeline
-- Added comprehensive testing suite
 
 ---

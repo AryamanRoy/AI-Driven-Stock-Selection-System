@@ -186,15 +186,6 @@ The system tracks various performance metrics:
 - Financial data providers
 - The open-source community for various tools and libraries
 
-## 📞 Support
-
-If you encounter any issues or have questions:
-
-- Open an issue on GitHub
-- Check the [FAQ](FAQ.md) section
-- Review the [documentation](docs/)
-- Contact the maintainers
-
 ## 🗺️ Roadmap
 
 - [ ] Integration with more data sources

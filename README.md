@@ -186,14 +186,4 @@ The system tracks various performance metrics:
 - Financial data providers
 - The open-source community for various tools and libraries
 
-## 🗺️ Roadmap
-
-- [ ] Integration with more data sources
-- [ ] Real-time dashboard interface
-- [ ] Mobile application
-- [ ] Advanced machine learning models
-- [ ] Portfolio optimization features
-- [ ] Integration with trading platforms
-- [ ] Multi-language sentiment analysis
-
 ---
